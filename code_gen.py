@@ -175,7 +175,7 @@ def stat(n,Nc):
 
 ##=====================test generate==========================
 def testgen(n,Nc,fw):
-    s = "def test(n, propwriter, rawwriter"+paragen("beta",n)+paragen("alpha",n)+paragen("norm",n)+",s,gap):\n"
+    s = "def test(n, propwriter, rawwriter"+paragen("beta",n)+paragen("alpha",n)+",norm,s,gap):\n"
     for i in range(n):
         t_0 = [0]*Nc[i]
         s = s+"\tbetavla_"+str(i+1)+" = "+str(t_0)+"\n"
@@ -246,7 +246,7 @@ def testgen(n,Nc,fw):
     s = s+"\tm = Model('prop_pack')\n"
     s = s+"\tm.setParam(GRB.Param.LogToConsole, 0)\n"
     s = s+"\tpack = m.addVars(es, ub=1.0, vtype=GRB.CONTINUOUS, name="+'"pack"'+")\n"
-    s = s+"\tm.setObjective(quicksum(pack[w,i" + paragen("a",n)+"]*w for w,i"+paragen("a",n)+" in s), GRB.MAXIMIZE)\n"
+    s = s+"\tm.setObjective(quicksum(pack[w,i" + paragen("a",n)+"]*w for w,i"+paragen("a",n)+" in es), GRB.MAXIMIZE)\n"
     for i in range(n):
         s = s + "\tcons_"+str(i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - beta_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") <= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(i+1)+'")\n'
         s = s + "\tcons_"+str(n+i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - alpha_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") <= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(n+i+1)+'")\n'
@@ -271,7 +271,6 @@ def testgen(n,Nc,fw):
         s = s + "\t\tdifbeta_"+str(i+1)+"_4[i] = math.ceil(abs(betavlar_"+str(i+1)+"_4[i] - opt_4 * beta_"+str(i+1)+"[i]))\n"
         s = s + "\t\tdifalpha_"+str(i+1)+"_2[i] = - math.ceil(abs(betavla_"+str(i+1)+"[i] - opt_2 * alpha_"+str(i+1)+"[i]))\n"
         s = s + "\t\tdifalpha_"+str(i+1)+"_4[i] = math.ceil(abs(betavlar_"+str(i+1)+"_4[i] - opt_4 * alpha_"+str(i+1)+"[i]))\n"
-    s = s + "\tnorm = max([0"+paragen("norm",n)+"])\n"
     if fw:
         s = s + "\tpropwriter.writerow([n,gap,norm, time_3, time_5,tem, opt_2, opt_4,intecount]"+paragenp("betavla",n,"+")+paragenbp("betavlar",n,4,"+")+paragenbp("difbeta",n,2,"+")+paragenbp("difbeta",n,4,"+")+paragenbp("difalpha",n,2,"+")+paragenbp("difalpha",n,4,"+")+")\n"
         s = s + "\tresult = [n,gap,norm, time_3, time_5,tem, opt_2, opt_4,intecount, (0"+averagegen("difbeta",n,2,"+")+")/Na, (0"+averagegen("difbeta",n,4,"+")+")/Na, (0"+averagegen("difalpha",n,2,"+")+")/Na, (0"+averagegen("difalpha",n,4,"+")+")/Na"+"]\n"
@@ -286,24 +285,26 @@ def testgen(n,Nc,fw):
 ##=====================main body==============================
 
 def body(fr,fw,fc,Na,Nc,Ne,gap):
-    s = "with open('prop_pack_data_'+str(Ne)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_file, open('raw_data_'+str(Ne)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_f:\n"
-    s = s + "\tpropwriter = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
-    s = s + "\trawwriter = csv.writer(csv_f, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
+    s = ""
     if fc:
-        s = s + "\ttotal = product(Nc)\n"
-        s = s + "\ts = gen(total)\n"
-        s = s + "\tsp = rearranges(s,Na,Nc)\n"
+        s = s + "total = product(Nc)\n"
+        s = s + "s = gen(total)\n"
+        s = s + "sp = rearranges(s,Na,Nc)\n"
     else:
-        s = s + "\ts = ["
+        s = s + "s = ["
         for i in range(Na-1):
             s = s+ "gen("+str(Nc[i])+"),"
         s = s + "gen("+str(Nc[Na-1])+")]\n"
-        s = s + "\tsp = s\n"
+        s = s + "sp = s\n"
     for i in range(Na):
         if fr:
-            s = s + "\talpha_"+str(i+1)+", beta_"+str(i+1)+", norm_"+str(i+1)+" = genalphabetanorm(Nc["+str(i)+"], sp["+str(i)+"], gap)\n"
+            s = s + "alpha_"+str(i+1)+", beta_"+str(i+1)+", norm_"+str(i+1)+" = genalphabetanorm(Nc["+str(i)+"], sp["+str(i)+"], gap)\n"
         else:
-            s = s + "\talpha_"+str(i+1)+", beta_"+str(i+1)+", norm_"+str(i+1)+" = genalphabeta(Nc["+str(i)+"], sp["+str(i)+"], gap)\n"
+            s = s + "alpha_"+str(i+1)+", beta_"+str(i+1)+", norm_"+str(i+1)+" = genalphabeta(Nc["+str(i)+"], sp["+str(i)+"], gap)\n"
+    s = s + "norm = max([0"+paragen("norm",Na)+"])\n"
+    s = s + "with open('prop_pack_data_'+str(Ne)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_file, open('raw_data_'+str(Ne)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_f:\n"
+    s = s + "\tpropwriter = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
+    s = s + "\trawwriter = csv.writer(csv_f, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
     s = s + "\tres = []"
     s = s + "\tfor i in range(times):\n"
     s = s + "\t\trt = test(n, propwriter, rawwriter"+paragen("beta",Na)+paragen("alpha",Na)+paragen("norm",Na)+",s,gap)\n"
