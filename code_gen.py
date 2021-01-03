@@ -307,7 +307,7 @@ def body(fr,fw,fc,Na,Nc,Ne,gap):
     s = s + "\trawwriter = csv.writer(csv_f, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
     s = s + "\tres = []\n"
     s = s + "\tfor i in range(times):\n"
-    s = s + "\t\trt = test(n, propwriter, rawwriter"+paragen("beta",Na)+paragen("alpha",Na)+"norm,s,gap)\n"
+    s = s + "\t\trt = test(n, propwriter, rawwriter"+paragen("beta",Na)+paragen("alpha",Na)+",norm,s,gap)\n"
     s = s + "\t\tres.append(rt)\n"
     s = s + "\tave = []\n"
     s = s + "\tfor i in range(len(res[0])):\n"
