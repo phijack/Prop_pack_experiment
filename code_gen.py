@@ -208,7 +208,7 @@ def testgen(n,Nc,fw):
     for i in range(n):
         t_0 = [0]*Nc[i]
         s = s+"\t\ttbetav_"+str(i+1)+" = "+str(t_0)+"\n"
-    s = s + "\t\tes_copy,tvl"+paragen("tbetav",n)+", result_2 = iterative(es_copy, cap, cap_1"+paragen("betav",n)+paragen("alphav",n)+paragen("delbetav",n)+", result_2)\n"
+    s = s + "\t\tes_copy,tvl"+paragen("tbetavl",n)+", result_2 = iterative(es_copy, cap, cap_1"+paragen("betav",n)+paragen("alphav",n)+paragen("delbetav",n)+", result_2)\n"
     s = s + "\t\tvla = vla + tvl\n"
     s = s + "\t\tcap = cap - tvl\n"
     s = s + "\t\tcap_1 = cap_1 - tvl\n"
@@ -233,6 +233,7 @@ def testgen(n,Nc,fw):
     if not fw:
         s = s + "\tstart_4 = time.clock()\n"
         s = s + "\tcap = tem\n"
+        s = s + "\tcountg = 0\n"
         s = s + "\twhile True:\n"
         s = s + "\t\tcountg = countg + 1\n"
         s = s + "\t\topt_3 = guessing(es, cap"+paragen("beta",n)+paragen("alpha",n)+")\n"
