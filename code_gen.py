@@ -93,7 +93,7 @@ def LPwrite(flag,n,Nc):
     s = s+"\tm.setObjective(quicksum(pack[w,i" + paragen("a",n)+"]*w for w,i"+paragen("a",n)+" in s), GRB.MAXIMIZE)\n"
     for i in range(n):
         s = s + "\tcons_"+str(i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - beta_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") <= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(i+1)+'")\n'
-        s = s + "\tcons_"+str(n+i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - alpha_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") <= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(n+i+1)+'")\n'
+        s = s + "\tcons_"+str(n+i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - alpha_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") >= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(n+i+1)+'")\n'
     s = s+"\tm.optimize()\n"#end
     if flag:
         s = s+ "\tif m.status == GRB.Status.OPTIMAL:\n"
@@ -249,7 +249,7 @@ def testgen(n,Nc,fw):
     s = s+"\tm.setObjective(quicksum(pack[w,i" + paragen("a",n)+"]*w for w,i"+paragen("a",n)+" in es), GRB.MAXIMIZE)\n"
     for i in range(n):
         s = s + "\tcons_"+str(i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - beta_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") <= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(i+1)+'")\n'
-        s = s + "\tcons_"+str(n+i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - alpha_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") <= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(n+i+1)+'")\n'
+        s = s + "\tcons_"+str(n+i+1)+" = m.addConstrs((pack.sum("+star(n,i+1)+") - alpha_"+str(i+1)+"[i] * pack.sum("+star(n,0)+") >= 0 for i in range("+str(Nc[i])+")), "+'"cons_'+str(n+i+1)+'")\n'
     s = s+"\tm.optimize()\n"
     s = s + "\tintecount = 0\n"
     s = s+ "\tif m.status == GRB.Status.OPTIMAL:\n"
@@ -267,10 +267,10 @@ def testgen(n,Nc,fw):
     s = s + "\topt_4"+paragenb("betavlar",n,4)+" = statistical(es, result_4)\n"
     for i in range(n):
         s = s + "\tfor i in range("+str(Nc[i])+"):\n"
-        s = s + "\t\tdifbeta_"+str(i+1)+"_2[i] = math.ceil(abs(betavla_"+str(i+1)+"[i] - opt_2 * beta_"+str(i+1)+"[i]))\n"
-        s = s + "\t\tdifbeta_"+str(i+1)+"_4[i] = math.ceil(abs(betavlar_"+str(i+1)+"_4[i] - opt_4 * beta_"+str(i+1)+"[i]))\n"
-        s = s + "\t\tdifalpha_"+str(i+1)+"_2[i] = - math.ceil(abs(betavla_"+str(i+1)+"[i] - opt_2 * alpha_"+str(i+1)+"[i]))\n"
-        s = s + "\t\tdifalpha_"+str(i+1)+"_4[i] = math.ceil(abs(betavlar_"+str(i+1)+"_4[i] - opt_4 * alpha_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifbeta_"+str(i+1)+"_2[i] = math.ceil(plus(betavla_"+str(i+1)+"[i] - opt_2 * beta_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifbeta_"+str(i+1)+"_4[i] = math.ceil(plus(betavlar_"+str(i+1)+"_4[i] - opt_4 * beta_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifalpha_"+str(i+1)+"_2[i] = math.ceil(plus( - betavla_"+str(i+1)+"[i] + opt_2 * alpha_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifalpha_"+str(i+1)+"_4[i] = math.ceil(plus( - betavlar_"+str(i+1)+"_4[i] + opt_4 * alpha_"+str(i+1)+"[i]))\n"
     if fw:
         s = s + "\tpropwriter.writerow([n,gap,norm, time_3, time_5,tem, opt_2, opt_4,intecount]"+paragenp("betavla",n,"+")+paragenbp("betavlar",n,4,"+")+paragenbp("difbeta",n,2,"+")+paragenbp("difbeta",n,4,"+")+paragenbp("difalpha",n,2,"+")+paragenbp("difalpha",n,4,"+")+")\n"
         s = s + "\tresult = [n,gap,norm, time_3, time_5,tem, opt_2, opt_4,intecount, (0"+averagegen("difbeta",n,2,"+")+")/Na, (0"+averagegen("difbeta",n,4,"+")+")/Na, (0"+averagegen("difalpha",n,2,"+")+")/Na, (0"+averagegen("difalpha",n,4,"+")+")/Na"+"]\n"

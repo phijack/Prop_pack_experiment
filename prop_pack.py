@@ -21,6 +21,11 @@ def tablegen(n,Nc,total):
         table.append(t)
     return table
 
+def plus(d):
+    if d > 0:
+        return d
+    else:
+        return 0
 
 ##======================================generate function======================================
 def gen(n):
