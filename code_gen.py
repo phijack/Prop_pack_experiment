@@ -216,8 +216,8 @@ def testgen(n,Nc,fw):
         s = s + "\t\tfor i in range("+str(Nc[i])+"):\n"
         s = s + "\t\t\tbetavla_"+str(i+1)+"[i] = betavla_"+str(i+1)+"[i] + tbetavl_"+str(i+1)+"[i]\n"
         s = s + "\t\t\tif i < len(betav_"+str(i+1)+"):\n"
-        s = s + "\t\t\t\tbetav_"+str(i+1)+"[i] = betav_"+str(i+1)+"[i] + tbetavl_"+str(i+1)+"[i]\n"
-        s = s + "\t\t\t\talphav_"+str(i+1)+"[i] = alphav_"+str(i+1)+"[i] + tbetavl_"+str(i+1)+"[i]\n"
+        s = s + "\t\t\t\tbetav_"+str(i+1)+"[i] = betav_"+str(i+1)+"[i] - tbetavl_"+str(i+1)+"[i]\n"
+        s = s + "\t\t\t\talphav_"+str(i+1)+"[i] = alphav_"+str(i+1)+"[i] - tbetavl_"+str(i+1)+"[i]\n"
     s = s + "\t\tfor w,i"+paragen("a",n)+" in es_copy:\n"
     for i in range(n):
         s = s + "\t\t\ttbetav_"+str(i+1)+"[a_"+str(i+1)+"] = tbetav_"+str(i+1)+"[a_"+str(i+1)+"] + 1\n"
