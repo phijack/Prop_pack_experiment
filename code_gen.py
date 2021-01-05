@@ -314,7 +314,7 @@ def body(fr,fw,fc,Na,Nc,Ne,gap):
         else:
             s = s + "alpha_"+str(i+1)+", beta_"+str(i+1)+", norm_"+str(i+1)+" = genalphabeta(Nc["+str(i)+"], sp["+str(i)+"], gap)\n"
     s = s + "norm = max([0"+paragen("norm",Na)+"])\n"
-    s = s + "with open('prop_pack_data_'+str(Ne)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_file, open('raw_data_'+str(Ne)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_f:\n"
+    s = s + "with open('prop_pack_data_'+str(n)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_file, open('raw_data_'+str(n)+'_'+str(Na)+'r'+str(fr)+'w'+str(fw)+'c'+str(fc)+'_'+str(gap)+'_'+str(norm)+'.csv', 'w', newline='') as csv_f:\n"
     s = s + "\tpropwriter = csv.writer(csv_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
     s = s + "\trawwriter = csv.writer(csv_f, delimiter=',', quoting=csv.QUOTE_MINIMAL)\n"
     s = s + "\tres = []\n"
