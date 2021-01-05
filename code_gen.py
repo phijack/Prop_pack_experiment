@@ -78,10 +78,9 @@ def star(n,i):
 def LPwrite(flag,n,Nc):
     s = "def "
     if flag:
-        s = s+"ILP"
+        s = s+"ILP(s"+paragen("beta",n)+paragen("alpha",n)+"):\n"
     else:
-        s = s+"LP"
-    s = s+"(s"+paragen("beta",n)+paragen("alpha",n)+"):\n"
+        s = s+"LP(s, start_2"+paragen("beta",n)+paragen("alpha",n)+"):\n"
     s = s+"\tm = Model('prop_pack')\n"#start
     s = s+"\tm.setParam(GRB.Param.LogToConsole, 0)\n"
     if flag:
@@ -102,9 +101,10 @@ def LPwrite(flag,n,Nc):
         s = s+ "\tif m.status == GRB.Status.TIME_LIMIT:\n"
         s = s+ "\t\treturn 0, -1\n"
     else:
+        s = s + "\ttime_2 = time.clock() - start_2\n"
         s = s + "\tif m.status == GRB.Status.OPTIMAL:\n"
         s = s + "\t\ttn = pack.sum("+star(n,0)+")\n"
-        s = s + "\t\treturn m.objVal, tn.getValue()\n"
+        s = s + "\t\treturn m.objVal, tn.getValue(),time_2\n"
     return s
 
 def ite(n,Nc):
@@ -202,8 +202,7 @@ def testgen(n,Nc,fw):
         s = s + "\ttime_1 = time.clock() - start_1\n"
         s = s + "\topt_1 = round(opt_1)\n"
     s = s + "\tstart_2 = time.clock()\n"
-    s = s + "\ttem,tn = LP(es"+paragen("beta",n)+paragen("alpha",n)+")\n"
-    s = s + "\ttime_2 = time.clock() - start_2\n"
+    s = s + "\ttem,tn,time_2 = LP(es,start_2"+paragen("beta",n)+paragen("alpha",n)+")\n"
     s = s + "\tcap = math.ceil(tn)\n"
     s = s + "\tcap_1 = math.floor(tn)\n"
 #    s = s + "\ttem = cap\n"
@@ -280,10 +279,10 @@ def testgen(n,Nc,fw):
     s = s + "\topt_4"+paragenb("betavlar",n,4)+" = statistical(es, result_4)\n"
     for i in range(n):
         s = s + "\tfor i in range("+str(Nc[i])+"):\n"
-        s = s + "\t\tdifbeta_"+str(i+1)+"_2[i] = math.ceil(plus(betavla_"+str(i+1)+"[i] - opt_2 * beta_"+str(i+1)+"[i]))\n"
-        s = s + "\t\tdifbeta_"+str(i+1)+"_4[i] = math.ceil(plus(betavlar_"+str(i+1)+"_4[i] - opt_4 * beta_"+str(i+1)+"[i]))\n"
-        s = s + "\t\tdifalpha_"+str(i+1)+"_2[i] = math.ceil(plus( - betavla_"+str(i+1)+"[i] + opt_2 * alpha_"+str(i+1)+"[i]))\n"
-        s = s + "\t\tdifalpha_"+str(i+1)+"_4[i] = math.ceil(plus( - betavlar_"+str(i+1)+"_4[i] + opt_4 * alpha_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifbeta_"+str(i+1)+"_2[i] = math.ceil(plus(betavla_"+str(i+1)+"[i] - sum(result_2) * beta_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifbeta_"+str(i+1)+"_4[i] = math.ceil(plus(betavlar_"+str(i+1)+"_4[i] - sum(result_4) * beta_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifalpha_"+str(i+1)+"_2[i] = math.ceil(plus( - betavla_"+str(i+1)+"[i] + sum(result_2) * alpha_"+str(i+1)+"[i]))\n"
+        s = s + "\t\tdifalpha_"+str(i+1)+"_4[i] = math.ceil(plus( - betavlar_"+str(i+1)+"_4[i] + sum(result_4) * alpha_"+str(i+1)+"[i]))\n"
     if fw:
         s = s + "\tpropwriter.writerow([n,gap,norm, time_3, time_5,tem, opt_2, opt_4,intecount]"+paragenp("betavla",n,"+")+paragenbp("betavlar",n,4,"+")+paragenbp("difbeta",n,2,"+")+paragenbp("difbeta",n,4,"+")+paragenbp("difalpha",n,2,"+")+paragenbp("difalpha",n,4,"+")+")\n"
         s = s + "\tresult = [n,gap,norm, time_3, time_5,tem, opt_2, opt_4,intecount, (0"+averagegen("difbeta",n,2,"+")+")/Na, (0"+averagegen("difbeta",n,4,"+")+")/Na, (0"+averagegen("difalpha",n,2,"+")+")/Na, (0"+averagegen("difalpha",n,4,"+")+")/Na"+"]\n"
