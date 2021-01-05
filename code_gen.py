@@ -104,7 +104,7 @@ def LPwrite(flag,n,Nc):
     else:
         s = s + "\tif m.status == GRB.Status.OPTIMAL:\n"
         s = s + "\t\ttn = pack.sum("+star(n,0)+")"
-        s = s + "\t\treturn m.objVal, tn\n"
+        s = s + "\t\treturn m.objVal, tn.getValue()\n"
     return s
 
 def ite(n,Nc):
