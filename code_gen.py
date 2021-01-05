@@ -103,7 +103,8 @@ def LPwrite(flag,n,Nc):
         s = s+ "\t\treturn 0, -1\n"
     else:
         s = s + "\tif m.status == GRB.Status.OPTIMAL:\n"
-        s = s + "\t\treturn m.objVal\n"
+        s = s + "\t\ttn = pack.sum("+star(n,0)+")"
+        s = s + "\t\treturn m.objVal, tn\n"
     return s
 
 def ite(n,Nc):
@@ -112,6 +113,8 @@ def ite(n,Nc):
         t_0 = [0]*Nc[i]
         s = s+ "\tbetavl_"+str(i+1)+" = "+ str(t_0)+"\n"
     s = s+ "\tvl = 0\n"
+    if fw:
+        s = s + "\ttn = 0\n"
     s = s+"\tm = Model('prop_pack')\n"#start
     s = s+"\tm.setParam(GRB.Param.LogToConsole, 0)\n"
     s = s+"\tpack = m.addVars(s, ub=1.0, vtype=GRB.CONTINUOUS, name="+'"pack"'+")\n"
@@ -131,10 +134,15 @@ def ite(n,Nc):
     s = s+"\t\t\t\tt = (w,i" + paragen("a",n)+")\n"
     s = s+"\t\t\t\ts.remove(t)\n"
     s = s+"\t\t\t\tresult[i] = 1\n"
+    if fw:
+        s = s+"\t\t\t\ttn = tn + 1\n"
     s = s+"\t\t\t\tvl = vl + w\n"
     for i in range(n):
         s = s + "\t\t\t\tbetavl_"+str(i+1)+"[a_"+str(i+1)+"] = betavl_"+str(i+1)+"[a_"+str(i+1)+"] + 1\n"
-    s = s + "\t\treturn s, vl" +paragen("betavl",n)+", result\n"
+    if fw:
+        s = s + "\t\treturn s, vl, tn" +paragen("betavl",n)+", result\n"
+    else:
+        s = s + "\t\treturn s, vl" +paragen("betavl",n)+", result\n"
     s = s + "\telse:\n"
     s = s + "\t\treturn -1\n"
     return s
@@ -194,11 +202,11 @@ def testgen(n,Nc,fw):
         s = s + "\ttime_1 = time.clock() - start_1\n"
         s = s + "\topt_1 = round(opt_1)\n"
     s = s + "\tstart_2 = time.clock()\n"
-    s = s + "\ttem = LP(es"+paragen("beta",n)+paragen("alpha",n)+")\n"
+    s = s + "\ttem,tn = LP(es"+paragen("beta",n)+paragen("alpha",n)+")\n"
     s = s + "\ttime_2 = time.clock() - start_2\n"
-    s = s + "\tcap = math.ceil(tem)\n"
-    s = s + "\tcap_1 = math.floor(tem)\n"
-    s = s + "\ttem = cap\n"
+    s = s + "\tcap = math.ceil(tn)\n"
+    s = s + "\tcap_1 = math.floor(tn)\n"
+#    s = s + "\ttem = cap\n"
     for i in range(n):
         s = s + "\tbetav_"+str(i+1)+" = computecons(cap, beta_"+str(i+1)+", 1)\n"
         s = s + "\talphav_"+str(i+1)+" = computecons(cap_1, alpha_"+str(i+1)+", 0)\n"
@@ -208,10 +216,15 @@ def testgen(n,Nc,fw):
     for i in range(n):
         t_0 = [0]*Nc[i]
         s = s+"\t\ttbetav_"+str(i+1)+" = "+str(t_0)+"\n"
-    s = s + "\t\tes_copy,tvl"+paragen("tbetavl",n)+", result_2 = iterative(es_copy, cap, cap_1"+paragen("betav",n)+paragen("alphav",n)+paragen("delbetav",n)+", result_2)\n"
+    if fw:
+        s = s + "\t\tes_copy,tvl, tn"+paragen("tbetavl",n)+", result_2 = iterative(es_copy, cap, cap_1"+paragen("betav",n)+paragen("alphav",n)+paragen("delbetav",n)+", result_2)\n"
+        s = s + "\t\tcap = cap - tn\n"
+        s = s + "\t\tcap_1 = cap_1 - tn\n"
+    else:
+        s = s + "\t\tes_copy,tvl"+paragen("tbetavl",n)+", result_2 = iterative(es_copy, cap, cap_1"+paragen("betav",n)+paragen("alphav",n)+paragen("delbetav",n)+", result_2)\n"
+        s = s + "\t\tcap = cap - tvl\n"
+        s = s + "\t\tcap_1 = cap_1 - tvl\n"
     s = s + "\t\tvla = vla + tvl\n"
-    s = s + "\t\tcap = cap - tvl\n"
-    s = s + "\t\tcap_1 = cap_1 - tvl\n"
     for i in range(n):
         s = s + "\t\tfor i in range("+str(Nc[i])+"):\n"
         s = s + "\t\t\tbetavla_"+str(i+1)+"[i] = betavla_"+str(i+1)+"[i] + tbetavl_"+str(i+1)+"[i]\n"
